@@ -15,12 +15,18 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        if self.talking:
+        if self.recording:
+            if data == p.FIN:
+                self.child = self.paplay()
+                self.transport.write(p.ACK)
+                return
+
             self.send_chunk()
         else:
             if data == p.FIN:
+                self.child.stdin.close()
                 self.child = self.arecord()
-                self.send_chunk()
+                self.transport.write(p.ACK)
                 return
 
             self.child.stdin.write(data)

@@ -1,6 +1,7 @@
 """Walkie-Talkie Client"""
 
 import argparse
+import os
 import signal
 import subprocess as sp  # noqa: F401
 import sys  # noqa: F401
@@ -19,34 +20,31 @@ active_walkie = CLIENT
 
 
 class Color:
-    def _color(msg, N):
+    @classmethod
+    def _color(cls, msg, N):
         return '%s%s%s' % ('\033[{}m'.format(N), msg, '\033[0m')
 
     @classmethod
-    def RED(self, msg):
-        return self._color(msg, 31)
+    def RED(cls, msg):
+        return cls._color(msg, 31)
 
     @classmethod
-    def GREEN(self, msg):
-        return self._color(msg, 32)
+    def GREEN(cls, msg):
+        return cls._color(msg, 32)
 
 
 def monitor_input():
-    def erase_line():
-        input()
-        if not p.DEBUGGING:
-            CURSOR_UP_ONE = '\x1b[1A'
-            ERASE_LINE = ('\b' * 60) + (' ' * 60) + ('\b' * 60)
-            print(CURSOR_UP_ONE + ERASE_LINE, end='')
-
     def print_status(status, color):
         global active_walkie
         active_walkie = status
 
         instructions = 'Press Enter to Toggle Walkie Mode...'
-        print(instructions + color(' [' + status + '] '), end='')
+        input(instructions + color(' [' + status + '] '))
         sys.stdout.flush()
-        erase_line()
+        if not p.DEBUGGING:
+            CURSOR_UP_ONE = '\x1b[1A'
+            ERASE_LINE = ('\b' * 60) + (' ' * 60) + ('\b' * 60)
+            print(CURSOR_UP_ONE + ERASE_LINE, end='')
 
 
     while True:
@@ -55,32 +53,33 @@ def monitor_input():
 
 
 class WalkieClient(p.Walkie):
-    def __init__(self):
-        self.talking = False
-
     def connectionMade(self):
         self.child = self.arecord()
         self.send_chunk()
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        if active_walkie == CLIENT:
-            if not self.talking:
 
+        if active_walkie == CLIENT:
+            if not self.recording:
                 if data != p.ACK:
                     self.child.stdin.write(data)
-                    self.transport.write(p.FIN)
+                    self.child.stdin.close()
 
                 self.child = self.arecord()
+                self.transport.write(p.FIN)
+                return
 
             self.send_chunk()
         elif active_walkie == SERVER:
-            if self.talking:
+            if self.recording:
                 self.transport.write(p.FIN)
                 self.child = self.paplay()
                 return
 
-            self.child.stdin.write(data)
+            if data != p.ACK:
+                self.child.stdin.write(data)
+
             self.transport.write(p.ACK)
 
 
@@ -101,7 +100,7 @@ class WalkieFactory(protocol.ClientFactory):
 
 def sigint_handler(signum, frame):
     reactor.stop()
-    sys.exit(0)
+    os._exit(0)
 
 
 if __name__ == '__main__':

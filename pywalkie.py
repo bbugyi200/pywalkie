@@ -12,22 +12,24 @@ FIN = b'FIN'
 
 class Walkie(protocol.Protocol):
     def __init__(self):
-        self.talking = False
+        self.recording = ...
 
     def dataReceived(self, data):
-        dmsg('Data Chunk Size: %d', len(data))
+        dmsg('In-Data Chunk Size: %d', len(data))
+        if len(data) < 10:
+            dmsg('Received: %r', data)
 
     def send_chunk(self):
         data = self.child.stdout.read(CHUNK_SIZE)
-        dmsg('Data Chunk Size: %d', len(data))
+        dmsg('Out-Data Chunk Size: %d', len(data))
         self.transport.write(data)
 
     def arecord(self):
-        self.talking = True
+        self.recording = True
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     def paplay(self):
-        self.talking = False
+        self.recording = False
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
 
