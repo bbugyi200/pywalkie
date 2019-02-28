@@ -73,13 +73,26 @@ class WalkieClient(p.Walkie):
 
             self.send_chunk()
         elif active_walkie == SERVER:
+            fp = '/tmp/client.wav'
+            first = True
+
+            if first:
+                p.dmsg('DATA: %r', data)
+                first = False
+
             if self.recording:
                 self.FIN()
                 self.child = self.paplay()
+
+                if os.path.exists(fp):
+                    os.remove(fp)
+
                 return
 
             if data != p.ACK:
                 self.child.stdin.write(data)
+                with open(fp, 'ab') as f:
+                    f.write(data)
 
             self.ACK()
 
