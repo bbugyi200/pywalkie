@@ -20,7 +20,8 @@ class WalkieServer(p.Walkie):
         if self.recording:
             if data == p.FIN:
                 self.child = self.paplay()
-                self.transport.write(p.ACK)
+                log.msg('')
+                self.ACK()
                 return
 
             self.send_chunk()
@@ -28,11 +29,11 @@ class WalkieServer(p.Walkie):
             if data == p.FIN:
                 self.child.stdin.close()
                 self.child = self.arecord()
-                self.transport.write(p.ACK)
+                self.ACK()
                 return
 
             self.child.stdin.write(data)
-            self.transport.write(p.ACK)
+            self.ACK()
 
 
 class WalkieFactory(protocol.Factory):

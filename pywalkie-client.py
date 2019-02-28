@@ -68,20 +68,20 @@ class WalkieClient(p.Walkie):
                     self.child.stdin.close()
 
                 self.child = self.arecord()
-                self.transport.write(p.FIN)
+                self.FIN()
                 return
 
             self.send_chunk()
         elif active_walkie == SERVER:
             if self.recording:
-                self.transport.write(p.FIN)
+                self.FIN()
                 self.child = self.paplay()
                 return
 
             if data != p.ACK:
                 self.child.stdin.write(data)
 
-            self.transport.write(p.ACK)
+            self.ACK()
 
 
 class WalkieFactory(protocol.ClientFactory):

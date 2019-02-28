@@ -17,12 +17,17 @@ class Walkie(protocol.Protocol):
     def dataReceived(self, data):
         if len(data) > 10:
             dmsg('In-Data Chunk Size: %d', len(data))
+            dmsg('Received: %r', data[-10:])
         else:
             dmsg('Received: %r', data)
 
     def send_chunk(self):
         data = self.child.stdout.read(CHUNK_SIZE)
-        dmsg('Out-Data Chunk Size: %d', len(data))
+        if len(data) > 10:
+            dmsg('Out-Data Chunk Size: %d', len(data))
+            dmsg('Sent: %r', data[-10:])
+        else:
+            dmsg('Sent: %r', data)
         self.transport.write(data)
 
     def arecord(self):
@@ -32,6 +37,12 @@ class Walkie(protocol.Protocol):
     def paplay(self):
         self.recording = False
         return sp.Popen(['paplay'], stdin=sp.PIPE)
+
+    def ACK(self):
+        self.transport.write(ACK)
+
+    def FIN(self):
+        self.transport.write(FIN)
 
 
 def imsg(msg, *fmt_args, prefix='>>>'):
