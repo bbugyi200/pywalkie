@@ -60,8 +60,8 @@ class Walkie(protocol.Protocol):
             self.buffer = self.buffer[-len(FIN):]
 
             if len(ret) > CHUNK_SIZE:
-                self.buffer = ret[-CHUNK_SIZE:] + self.buffer
-                ret = ret[:-CHUNK_SIZE]
+                self.buffer = ret[CHUNK_SIZE:] + self.buffer
+                ret = ret[:CHUNK_SIZE]
         else:
             ret = b''
 
