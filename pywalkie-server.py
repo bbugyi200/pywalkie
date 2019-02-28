@@ -1,6 +1,7 @@
 """Walkie-Talkie Server"""
 
 import argparse
+import os  # noqa: F401
 import subprocess as sp  # noqa: F401
 import sys
 
@@ -28,14 +29,21 @@ class WalkieServer(p.Walkie):
 
             self.send_chunk()
         else:
+            fp = '/tmp/server.wav'
             if data == p.FIN:
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
+
+                if os.path.exists(fp):
+                    os.remove(fp)
+
                 return
 
             if data != p.ACK:
                 self.child.stdin.write(data)
+                with open(fp, 'ab') as f:
+                    f.write(data)
 
             self.ACK()
 
