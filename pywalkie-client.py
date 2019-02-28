@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Walkie-Talkie Client"""
 
 import argparse

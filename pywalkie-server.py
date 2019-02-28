@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Walkie-Talkie Server"""
 
 import argparse
@@ -27,6 +29,7 @@ class WalkieServer(p.Walkie):
 
         if self.recording:
             if clean_data == p.FIN:
+                make_sound('kling')
                 self.child.stdout.close()
                 self.child = self.paplay()
                 self.ACK()
@@ -35,6 +38,7 @@ class WalkieServer(p.Walkie):
             self.send_chunk()
         else:
             if clean_data == p.FIN:
+                make_sound('cow')
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
@@ -50,6 +54,13 @@ class WalkieServer(p.Walkie):
 class WalkieFactory(protocol.Factory):
     """Factory Class that Generates WalkieServer Instances"""
     protocol = WalkieServer
+
+
+def make_sound(name):
+    """Interface for Event-triggered Sound Effects"""
+    project_dir = '/home/bryan/projects/pywalkie/sounds/'
+    fp = project_dir + name + '.wav'
+    sp.Popen(['paplay', fp])
 
 
 if __name__ == '__main__':
@@ -68,6 +79,8 @@ if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
     p.dmsg('Starting Walkie Server...')
+
+    make_sound('kongas')
 
     reactor.listenTCP(port, WalkieFactory())
     reactor.run()
