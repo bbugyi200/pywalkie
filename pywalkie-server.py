@@ -22,6 +22,9 @@ class WalkieServer(p.Walkie):
         super().__init__()
         self.child = self.paplay()
 
+    def connectionMade(self):
+        self.make_sound('kongas')
+
     def dataReceived(self, data):
         super().dataReceived(data)
         clean_data = self.parse(data)
@@ -29,7 +32,7 @@ class WalkieServer(p.Walkie):
 
         if self.recording:
             if clean_data == p.FIN:
-                make_sound('kling')
+                self.make_sound('kling')
                 self.child.stdout.close()
                 self.child = self.paplay()
                 self.ACK()
@@ -38,7 +41,7 @@ class WalkieServer(p.Walkie):
             self.send_chunk()
         else:
             if clean_data == p.FIN:
-                make_sound('cow')
+                self.make_sound('cow')
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
@@ -50,17 +53,16 @@ class WalkieServer(p.Walkie):
 
             self.SYN()
 
+    def make_sound(self, name):
+        """Interface for Event-triggered Sound Effects"""
+        project_dir = '/home/bryan/projects/pywalkie/sounds/'
+        fp = project_dir + name + '.wav'
+        sp.Popen(['paplay', fp])
+
 
 class WalkieFactory(protocol.Factory):
     """Factory Class that Generates WalkieServer Instances"""
     protocol = WalkieServer
-
-
-def make_sound(name):
-    """Interface for Event-triggered Sound Effects"""
-    project_dir = '/home/bryan/projects/pywalkie/sounds/'
-    fp = project_dir + name + '.wav'
-    sp.Popen(['paplay', fp])
 
 
 if __name__ == '__main__':
@@ -79,8 +81,6 @@ if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
     p.dmsg('Starting Walkie Server...')
-
-    make_sound('kongas')
 
     reactor.listenTCP(port, WalkieFactory())
     reactor.run()
