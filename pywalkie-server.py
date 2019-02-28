@@ -10,8 +10,6 @@ from twisted.python import log
 
 import pywalkie as p  # noqa: F401
 
-from signal import signal, SIGPIPE, SIG_DFL
-signal(SIGPIPE, SIG_DFL)
 
 
 class WalkieServer(p.Walkie):
@@ -21,7 +19,9 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
+        print(data)
         data = self.buffer_data(data)
+        print(data)
 
         if self.recording:
             if data == p.FIN:

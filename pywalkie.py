@@ -16,19 +16,20 @@ class Walkie(protocol.Protocol):
         self.buffer = b''
 
     def dataReceived(self, data):
-        if len(data) > 10:
-            dmsg('In-Data Chunk Size: %d', len(data))
-            dmsg('Received: %r', data[-10:])
-        else:
-            dmsg('Received: %r', data)
+        # if len(data) > 10:
+        #     dmsg('In-Data Chunk Size: %d', len(data))
+        #     dmsg('Received: %r', data[-10:])
+        # else:
+        #     dmsg('Received: %r', data)
+        pass
 
     def send_chunk(self):
         data = self.child.stdout.read(CHUNK_SIZE)
-        if len(data) > 10:
-            dmsg('Out-Data Chunk Size: %d', len(data))
-            dmsg('Sent: %r', data[-10:])
-        else:
-            dmsg('Sent: %r', data)
+        # if len(data) > 10:
+        #     dmsg('Out-Data Chunk Size: %d', len(data))
+        #     dmsg('Sent: %r', data[-10:])
+        # else:
+        #     dmsg('Sent: %r', data)
         self.transport.write(data)
 
     def arecord(self):
