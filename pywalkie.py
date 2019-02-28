@@ -6,7 +6,7 @@ import subprocess as sp
 from twisted.protocols.basic import LineReceiver  # noqa: F401
 
 
-DEBUGGING = True
+DEBUGGING = ...
 
 
 def imsg(msg, *fmt_args, prefix='>>>'):

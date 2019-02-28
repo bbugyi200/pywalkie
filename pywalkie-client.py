@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('port', help="The server's port.")
     parser.add_argument('hostname', help="The server's hostname.")
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debugging output.')
     args = parser.parse_args()
 
     try:
@@ -59,7 +60,9 @@ if __name__ == '__main__':
     except ValueError:
         parser.error("Port must be an integer.")
 
-    p.imsg('---------- Walkie Client ----------')
+    DEBUGGING = args.debug
+
+    print('---------- Walkie Client ----------')
 
     reactor.connectTCP(args.hostname, port, WalkieFactory())
     reactor.run()
