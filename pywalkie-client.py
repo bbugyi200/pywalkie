@@ -59,5 +59,7 @@ if __name__ == '__main__':
     except ValueError:
         parser.error("Port must be an integer.")
 
+    p.imsg('---------- Walkie Client ----------')
+
     reactor.connectTCP(args.hostname, port, WalkieFactory())
     reactor.run()

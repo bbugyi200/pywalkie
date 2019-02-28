@@ -26,7 +26,7 @@ if __name__ == '__main__':
     except ValueError:
         parser.error("Port must be an integer.")
 
-    p.imsg('Walkie Server is Online')
+    p.imsg('---------- Walkie Server ----------')
 
     reactor.listenTCP(port, WalkieFactory())
     reactor.run()
