@@ -8,15 +8,23 @@ from twisted.internet import protocol, reactor
 import pywalkie as p  # noqa: F401
 
 
-class WalkieServer(protocol.Protocol):
+class WalkieServer(p.Walkie):
     def __init__(self):
-        self.child = sp.Popen(['paplay'], stdin=sp.PIPE)
+        super().__init__()
+        self.child = self.paplay()
 
     def dataReceived(self, data):
-        p.dmsg('Data Received')
-        p.dmsg('Data Chunk Size: %d', len(data))
-        self.transport.write(b'PULL')
-        self.child.stdin.write(data)
+        super().dataReceived(data)
+        if self.talking:
+            self.send_chunk()
+        else:
+            if data == p.FIN:
+                self.child = self.arecord()
+                self.send_chunk()
+                return
+
+            self.child.stdin.write(data)
+            self.transport.write(p.ACK)
 
 
 class WalkieFactory(protocol.Factory):

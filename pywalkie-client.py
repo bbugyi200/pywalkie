@@ -4,6 +4,7 @@ import argparse
 import signal
 import subprocess as sp  # noqa: F401
 import sys  # noqa: F401
+import threading
 
 import twisted
 from twisted.internet import protocol, reactor
@@ -11,26 +12,76 @@ from twisted.internet import protocol, reactor
 import pywalkie as p
 
 
-def sigint_handler(signum, frame):
-    reactor.stop()
-    sys.exit(0)
+CLIENT = 'CLIENT'
+SERVER = 'SERVER'
+
+active_walkie = CLIENT
 
 
-class WalkieClient(protocol.Protocol):
+class Color:
+    def _color(msg, N):
+        return '%s%s%s' % ('\033[{}m'.format(N), msg, '\033[0m')
+
+    @classmethod
+    def RED(self, msg):
+        return self._color(msg, 31)
+
+    @classmethod
+    def GREEN(self, msg):
+        return self._color(msg, 32)
+
+
+def monitor_input():
+    def erase_line():
+        input()
+        if not p.DEBUGGING:
+            CURSOR_UP_ONE = '\x1b[1A'
+            ERASE_LINE = ('\b' * 60) + (' ' * 60) + ('\b' * 60)
+            print(CURSOR_UP_ONE + ERASE_LINE, end='')
+
+    def print_status(status, color):
+        global active_walkie
+        active_walkie = status
+
+        instructions = 'Press Enter to Toggle Walkie Mode...'
+        print(instructions + color(' [' + status + '] '), end='')
+        sys.stdout.flush()
+        erase_line()
+
+
+    while True:
+        print_status(CLIENT, Color.GREEN)
+        print_status(SERVER, Color.RED)
+
+
+class WalkieClient(p.Walkie):
     def __init__(self):
-        super().__init__()
+        self.talking = False
 
     def connectionMade(self):
-        p.imsg('Connection Made')
-        self.child = sp.Popen(['arecord', '-fdat', '-d', '5'], stdout=sp.PIPE, stderr=sp.DEVNULL)
-
-        data = self.child.stdout.read(65536)
-        self.transport.write(data)
+        self.child = self.arecord()
+        self.send_chunk()
 
     def dataReceived(self, data):
-        if data == b'PULL':
-            data = self.child.stdout.read(65536)
-            self.transport.write(data)
+        super().dataReceived(data)
+        if active_walkie == CLIENT:
+            if not self.talking:
+
+                if data != p.ACK:
+                    self.child.stdin.write(data)
+                    self.transport.write(p.FIN)
+
+                self.child = self.arecord()
+
+            self.send_chunk()
+        elif active_walkie == SERVER:
+            if self.talking:
+                self.transport.write(p.FIN)
+                self.child = self.paplay()
+                return
+
+            self.child.stdin.write(data)
+            self.transport.write(p.ACK)
 
 
 class WalkieFactory(protocol.ClientFactory):
@@ -48,6 +99,11 @@ class WalkieFactory(protocol.ClientFactory):
             p.imsg("Connection Terminated.")
 
 
+def sigint_handler(signum, frame):
+    reactor.stop()
+    sys.exit(0)
+
+
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
 
@@ -62,9 +118,11 @@ if __name__ == '__main__':
     except ValueError:
         parser.error("Port must be an integer.")
 
-    DEBUGGING = args.debug
-
+    p.DEBUGGING = args.debug
     p.dmsg('Starting Walkie Client...')
+
+    t = threading.Thread(target=monitor_input, daemon=True)
+    t.start()
 
     reactor.connectTCP(args.hostname, port, WalkieFactory())
     reactor.run()
