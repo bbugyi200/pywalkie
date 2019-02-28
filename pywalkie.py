@@ -4,10 +4,10 @@ import subprocess as sp
 
 from twisted.internet import protocol
 
-ACK = b'1' * 100
+ACK = b'#$$%#%#$^%&&*^*)&*()#$@!#@##@^%$UTYHFDGDNMHGKTYSDF'
 CHUNK_SIZE = 4096
 DEBUGGING = ...  # Set by the client / server startup code.
-FIN = b'\0' * 100
+FIN = b'VBNVCVSDFESDTE&^%I DFG RTE^%$ &&(*)122343598dsflkm'
 
 
 class Walkie(protocol.Protocol):
