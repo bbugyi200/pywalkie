@@ -4,7 +4,7 @@ import subprocess as sp
 
 from twisted.internet import protocol
 
-ACK = b'@' * 100
+ACK = b'1' * 100
 CHUNK_SIZE = 4096
 DEBUGGING = ...  # Set by the client / server startup code.
 FIN = b'\0' * 100
