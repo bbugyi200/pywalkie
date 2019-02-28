@@ -4,15 +4,16 @@ import subprocess as sp
 
 from twisted.internet import protocol
 
-ACK = b'ACK'
-CHUNK_SIZE = 65536
+ACK = b'@' * 100
+CHUNK_SIZE = 4096
 DEBUGGING = ...  # Set by the client / server startup code.
-FIN = b'FIN'
+FIN = b'\0' * 100
 
 
 class Walkie(protocol.Protocol):
     def __init__(self):
         self.recording = ...
+        self.buffer = b''
 
     def dataReceived(self, data):
         if len(data) > 10:
@@ -32,10 +33,12 @@ class Walkie(protocol.Protocol):
 
     def arecord(self):
         self.recording = True
+        self.buffer = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     def paplay(self):
         self.recording = False
+        self.buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
     def ACK(self):
@@ -43,6 +46,28 @@ class Walkie(protocol.Protocol):
 
     def FIN(self):
         self.transport.write(FIN)
+
+    def buffer_data(self, data):
+        self.buffer += data
+        if FIN in self.buffer:
+            return FIN
+
+        if len(self.buffer) > 2 * len(FIN):
+            if ACK in self.buffer:
+                self.buffer = self.buffer.replace(ACK, b'')
+                return ACK
+
+            ret = self.buffer[:-len(FIN)]
+            self.buffer = self.buffer[-len(FIN):]
+
+            if len(ret) > CHUNK_SIZE:
+                self.buffer += ret[-CHUNK_SIZE:]
+                ret = ret[:-CHUNK_SIZE]
+        else:
+            ret = b''
+
+        dmsg('Buffered Data Size: %d', len(ret))
+        return ret
 
 
 def imsg(msg, *fmt_args, prefix='>>>'):

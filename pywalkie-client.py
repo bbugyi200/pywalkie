@@ -60,12 +60,12 @@ class WalkieClient(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
+        data = self.buffer_data(data)
 
         if active_walkie == CLIENT:
             if not self.recording:
-                if data != p.ACK:
-                    self.child.stdin.write(data)
-                    self.child.stdin.close()
+                self.child.stdin.write(data)
+                self.child.stdin.close()
 
                 self.child = self.arecord()
                 self.FIN()
