@@ -41,10 +41,8 @@ class WalkieServer(p.Walkie):
                 return
 
             if data != p.ACK:
-                try:
-                    self.child.stdin.write(data)
-                except IOError:
-                    pass
+                print(locals())
+                self.child.stdin.write(data)
 
                 with open(fp, 'ab') as f:
                     f.write(data)
