@@ -18,7 +18,7 @@ class WalkieServer(p.Walkie):
     def dataReceived(self, data):
         super().dataReceived(data)
         if self.recording:
-            if data == p.FIN:
+            if data[-len(p.FIN):] == p.FIN:
                 self.child = self.paplay()
                 log.msg('')
                 self.ACK()
@@ -26,7 +26,8 @@ class WalkieServer(p.Walkie):
 
             self.send_chunk()
         else:
-            if data == p.FIN:
+            if data[-len(p.FIN):] == p.FIN:
+                self.child.stdin.write(data[:-len(p.FIN)])
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
