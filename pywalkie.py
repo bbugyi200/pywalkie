@@ -55,18 +55,16 @@ class Walkie(protocol.Protocol):
         if len(self.buffer) > 2 * len(FIN):
             if ACK in self.buffer:
                 self.buffer = self.buffer.replace(ACK, b'')
-                return ACK
 
             ret = self.buffer[:-len(FIN)]
             self.buffer = self.buffer[-len(FIN):]
 
             if len(ret) > CHUNK_SIZE:
-                self.buffer += ret[-CHUNK_SIZE:]
+                self.buffer = ret[-CHUNK_SIZE:] + self.buffer
                 ret = ret[:-CHUNK_SIZE]
         else:
             ret = b''
 
-        dmsg('Buffered Data Size: %d', len(ret))
         return ret
 
 

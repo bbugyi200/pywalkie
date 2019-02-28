@@ -21,7 +21,8 @@ class WalkieServer(p.Walkie):
 
         if self.recording:
             if data == p.FIN:
-                log.msg('')
+                self.child.stdout.close()
+                self.child = self.paplay()
                 self.ACK()
                 return
 
