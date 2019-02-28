@@ -5,15 +5,19 @@ import subprocess as sp
 from twisted.internet import protocol
 
 ACK = b'ACK'
+BUFFER = b''
 CHUNK_SIZE = 4096
+CLIENT = 'CLIENT'
 DEBUGGING = ...  # Set by the client / server startup code.
 FIN = b'FIN'
+SERVER = 'SERVER'
+
+active_walkie = CLIENT
 
 
 class Walkie(protocol.Protocol):
     def __init__(self):
         self.recording = ...
-        self.buffer = b''
 
     def dataReceived(self, data):
         if len(data) > 10:
@@ -33,13 +37,17 @@ class Walkie(protocol.Protocol):
         self.transport.write(data)
 
     def arecord(self):
+        global BUFFER
+
         self.recording = True
-        self.buffer = b''
+        BUFFER = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     def paplay(self):
+        global BUFFER
+
         self.recording = False
-        self.buffer = b''
+        BUFFER = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
     def ACK(self):
@@ -49,20 +57,22 @@ class Walkie(protocol.Protocol):
         self.transport.write(FIN)
 
     def buffer_data(self, data):
-        self.buffer += data
-        if FIN in self.buffer:
+        global BUFFER
+
+        BUFFER += data
+        if FIN in BUFFER:
             return FIN
 
-        if ACK in self.buffer:
-            self.buffer = self.buffer.replace(ACK, b'')
+        if ACK in BUFFER:
+            BUFFER = BUFFER.replace(ACK, b'')
             return ACK
 
-        if len(self.buffer) > 2 * len(FIN):
-            ret = self.buffer[:-len(FIN)]
-            self.buffer = self.buffer[-len(FIN):]
+        if len(BUFFER) > 2 * len(FIN):
+            ret = BUFFER[:-len(FIN)]
+            BUFFER = BUFFER[-len(FIN):]
 
             if len(ret) > CHUNK_SIZE:
-                self.buffer = ret[CHUNK_SIZE:] + self.buffer
+                BUFFER = ret[CHUNK_SIZE:] + BUFFER
                 ret = ret[:CHUNK_SIZE]
         else:
             ret = b''
@@ -79,4 +89,4 @@ def imsg(msg, *fmt_args, prefix='>>>'):
 
 def dmsg(*args):
     if DEBUGGING:
-        imsg(*args, prefix='[DEBUG]')
+        imsg(*args, prefix='[' + active_walkie + ']')

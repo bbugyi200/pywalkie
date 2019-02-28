@@ -14,12 +14,6 @@ from twisted.python import log
 import pywalkie as p
 
 
-CLIENT = 'CLIENT'
-SERVER = 'SERVER'
-
-active_walkie = CLIENT
-
-
 class Color:
     @classmethod
     def _color(cls, msg, N):
@@ -36,8 +30,7 @@ class Color:
 
 def monitor_input():
     def print_status(status, color):
-        global active_walkie
-        active_walkie = status
+        p.active_walkie = status
 
         instructions = 'Press Enter to Toggle Walkie Mode...'
         input(instructions + color(' [' + status + '] '))
@@ -49,8 +42,8 @@ def monitor_input():
 
 
     while True:
-        print_status(CLIENT, Color.GREEN)
-        print_status(SERVER, Color.RED)
+        print_status(p.CLIENT, Color.GREEN)
+        print_status(p.SERVER, Color.RED)
 
 
 class WalkieClient(p.Walkie):
@@ -63,7 +56,7 @@ class WalkieClient(p.Walkie):
         data = self.buffer_data(data)
         p.dmsg('Actual Data: %r', data[20:])
 
-        if active_walkie == CLIENT:
+        if p.active_walkie == p.CLIENT:
             if not self.recording:
                 self.child.stdin.write(data)
                 self.child.stdin.close()
@@ -73,7 +66,7 @@ class WalkieClient(p.Walkie):
                 return
 
             self.send_chunk()
-        elif active_walkie == SERVER:
+        elif p.active_walkie == p.SERVER:
             if self.recording:
                 self.FIN()
                 self.child = self.paplay()
