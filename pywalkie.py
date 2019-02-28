@@ -4,10 +4,10 @@ import subprocess as sp
 
 from twisted.internet import protocol
 
-ACK = b'#$$%#%#$^%&&*^*)&*()#$@!#@##@^%$UTYHFDGDNMHGKTYSDF'
+ACK = b'ACK'
 CHUNK_SIZE = 4096
 DEBUGGING = ...  # Set by the client / server startup code.
-FIN = b'VBNVCVSDFESDTE&^%I DFG RTE^%$ &&(*)122343598dsflkm'
+FIN = b'FIN'
 
 
 class Walkie(protocol.Protocol):
@@ -16,20 +16,20 @@ class Walkie(protocol.Protocol):
         self.buffer = b''
 
     def dataReceived(self, data):
-        # if len(data) > 10:
-        #     dmsg('In-Data Chunk Size: %d', len(data))
-        #     dmsg('Received: %r', data[-10:])
-        # else:
-        #     dmsg('Received: %r', data)
+        if len(data) > 10:
+            dmsg('In-Data Chunk Size: %d', len(data))
+            dmsg('Received: %r', data[-10:])
+        else:
+            dmsg('Received: %r', data)
         pass
 
     def send_chunk(self):
         data = self.child.stdout.read(CHUNK_SIZE)
-        # if len(data) > 10:
-        #     dmsg('Out-Data Chunk Size: %d', len(data))
-        #     dmsg('Sent: %r', data[-10:])
-        # else:
-        #     dmsg('Sent: %r', data)
+        if len(data) > 10:
+            dmsg('Out-Data Chunk Size: %d', len(data))
+            dmsg('Sent: %r', data[-10:])
+        else:
+            dmsg('Sent: %r', data)
         self.transport.write(data)
 
     def arecord(self):
