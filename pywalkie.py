@@ -5,7 +5,6 @@ import subprocess as sp
 from twisted.internet import protocol
 
 ACK = b'ACK'
-BUFFER = b''
 CHUNK_SIZE = 1024
 CLIENT = 'CLIENT'
 DEBUGGING = ...  # Set by the client / server startup code.
@@ -17,6 +16,7 @@ active_walkie = CLIENT
 
 class Walkie(protocol.Protocol):
     def __init__(self):
+        self.buffer = b''
         self.recording = ...
 
     def dataReceived(self, data):
@@ -37,17 +37,13 @@ class Walkie(protocol.Protocol):
         self.transport.write(data)
 
     def arecord(self):
-        global BUFFER
-
         self.recording = True
-        BUFFER = b''
+        self.buffer = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     def paplay(self):
-        global BUFFER
-
         self.recording = False
-        BUFFER = b''
+        self.buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
     def ACK(self):
@@ -57,22 +53,20 @@ class Walkie(protocol.Protocol):
         self.transport.write(FIN)
 
     def buffer_data(self, data):
-        global BUFFER
-
-        BUFFER += data
-        if FIN in BUFFER:
+        self.buffer += data
+        if FIN in self.buffer:
             return FIN
 
-        if ACK in BUFFER:
-            BUFFER = BUFFER.replace(ACK, b'')
+        if ACK in self.buffer:
+            self.buffer = self.buffer.replace(ACK, b'')
             return ACK
 
-        if len(BUFFER) > 2 * len(FIN):
-            ret = BUFFER[:-len(FIN)]
-            BUFFER = BUFFER[-len(FIN):]
+        if len(self.buffer) > 2 * len(FIN):
+            ret = self.buffer[:-len(FIN)]
+            self.buffer = self.buffer[-len(FIN):]
 
             if len(ret) > CHUNK_SIZE:
-                BUFFER = ret[CHUNK_SIZE:] + BUFFER
+                self.buffer = ret[CHUNK_SIZE:] + self.buffer
                 ret = ret[:CHUNK_SIZE]
         else:
             ret = b''
