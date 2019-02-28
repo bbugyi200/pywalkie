@@ -12,3 +12,10 @@ The two screenshots below were taken from the viewpoint of the client. The clien
 ![Client Talks](img/green.png)
 
 ![Server Talks](img/red.png)
+
+# Dependencies
+Pywalkie makes use of [arecord](https://linux.die.net/man/1/arecord) to record audio from one machine.
+
+Once recorded, the audio is streamed to the second machine using [Twisted](https://twistedmatrix.com/trac/), an event-driven network programming framework written in Python.
+
+Finally, the audio is played back on the second machine using the [paplay](https://linux.die.net/man/1/paplay).
