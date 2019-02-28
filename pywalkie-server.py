@@ -11,7 +11,6 @@ from twisted.python import log
 import pywalkie as p  # noqa: F401
 
 
-
 class WalkieServer(p.Walkie):
     """Walkie Server
 

@@ -125,6 +125,6 @@ def imsg(msg, *fmt_args, prefix='>>>'):
 
 
 def dmsg(*args):
-    """Send a Debug Message"""
+    """Send a Debugging Message"""
     if DEBUGGING:
         imsg(*args, prefix='[' + active_walkie + ']')
