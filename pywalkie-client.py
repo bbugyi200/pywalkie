@@ -9,6 +9,7 @@ import threading
 
 import twisted
 from twisted.internet import protocol, reactor
+from twisted.python import log
 
 import pywalkie as p
 
@@ -119,6 +120,9 @@ if __name__ == '__main__':
 
     p.DEBUGGING = args.debug
     p.dmsg('Starting Walkie Client...')
+
+    if p.DEBUGGING:
+        log.startLogging(sys.stdout)
 
     t = threading.Thread(target=monitor_input, daemon=True)
     t.start()

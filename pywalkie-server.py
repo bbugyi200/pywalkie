@@ -2,8 +2,10 @@
 
 import argparse
 import subprocess as sp  # noqa: F401
+import sys
 
 from twisted.internet import protocol, reactor
+from twisted.python import log
 
 import pywalkie as p  # noqa: F401
 
@@ -49,6 +51,8 @@ if __name__ == '__main__':
         parser.error("Port must be an integer.")
 
     p.DEBUGGING = args.debug
+
+    log.startLogging(sys.stdout)
 
     p.dmsg('Starting Walkie Server...')
 

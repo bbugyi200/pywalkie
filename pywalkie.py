@@ -15,8 +15,9 @@ class Walkie(protocol.Protocol):
         self.recording = ...
 
     def dataReceived(self, data):
-        dmsg('In-Data Chunk Size: %d', len(data))
-        if len(data) < 10:
+        if len(data) > 10:
+            dmsg('In-Data Chunk Size: %d', len(data))
+        else:
             dmsg('Received: %r', data)
 
     def send_chunk(self):
