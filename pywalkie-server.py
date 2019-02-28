@@ -10,6 +10,9 @@ from twisted.python import log
 
 import pywalkie as p  # noqa: F401
 
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
+
 
 class WalkieServer(p.Walkie):
     def __init__(self):
@@ -41,7 +44,6 @@ class WalkieServer(p.Walkie):
                 return
 
             if data != p.ACK:
-                print(locals())
                 self.child.stdin.write(data)
 
                 with open(fp, 'ab') as f:
