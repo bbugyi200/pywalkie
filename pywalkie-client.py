@@ -3,7 +3,7 @@
 import argparse
 import signal
 import subprocess as sp  # noqa: F401
-import sys
+import sys  # noqa: F401
 
 import twisted
 from twisted.internet import protocol, reactor
@@ -16,19 +16,21 @@ def sigint_handler(signum, frame):
     sys.exit(0)
 
 
-class WalkieClient(p.Walkie('client')):
+class WalkieClient(protocol.Protocol):
     def __init__(self):
         super().__init__()
 
     def connectionMade(self):
         p.imsg('Connection Made')
-        child = sp.Popen(['arecord', '-fdat', '-d', '2'], stdout=sp.PIPE, stderr=sp.DEVNULL)
+        self.child = sp.Popen(['arecord', '-fdat', '-d', '5'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
-        for line in iter(child.stdout.readline, b''):
-            self.transport.write(line)
+        data = self.child.stdout.read(65536)
+        self.transport.write(data)
 
-    def rawDataReceived(self, data):
-        super().rawDataReceived(data)
+    def dataReceived(self, data):
+        if data == b'PULL':
+            data = self.child.stdout.read(65536)
+            self.transport.write(data)
 
 
 class WalkieFactory(protocol.ClientFactory):

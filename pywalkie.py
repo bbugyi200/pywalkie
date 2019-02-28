@@ -20,14 +20,3 @@ def imsg(msg, *fmt_args, prefix='>>>'):
 def dmsg(*args):
     if DEBUGGING:
         imsg(*args, prefix='[DEBUG]')
-
-def Walkie(name):
-    class _Walkie(protocol.Protocol):
-        def __init__(self):
-            self.child = sp.Popen(['paplay'], stdin=sp.PIPE)
-
-        def dataReceived(self, data):
-            dmsg('Data Received')
-            self.child.stdin.write(data)
-
-    return _Walkie
