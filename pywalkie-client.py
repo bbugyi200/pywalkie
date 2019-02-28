@@ -61,6 +61,7 @@ class WalkieClient(p.Walkie):
     def dataReceived(self, data):
         super().dataReceived(data)
         data = self.buffer_data(data)
+        p.dmsg('Actual Data: %r', data[20:])
 
         if active_walkie == CLIENT:
             if not self.recording:
@@ -73,20 +74,14 @@ class WalkieClient(p.Walkie):
 
             self.send_chunk()
         elif active_walkie == SERVER:
-            fp = '/tmp/client.wav'
             if self.recording:
                 self.FIN()
                 self.child = self.paplay()
-
-                if os.path.exists(fp):
-                    os.remove(fp)
 
                 return
 
             if data != p.ACK:
                 self.child.stdin.write(data)
-                with open(fp, 'ab') as f:
-                    f.write(data)
 
             self.ACK()
 

@@ -19,9 +19,8 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        print(data)
         data = self.buffer_data(data)
-        print(data)
+        p.dmsg('Actual Data: %r', data[20:])
 
         if self.recording:
             if data == p.FIN:
@@ -32,22 +31,15 @@ class WalkieServer(p.Walkie):
 
             self.send_chunk()
         else:
-            fp = '/tmp/server.wav'
             if data == p.FIN:
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
 
-                if os.path.exists(fp):
-                    os.remove(fp)
-
                 return
 
             if data != p.ACK:
                 self.child.stdin.write(data)
-
-                with open(fp, 'ab') as f:
-                    f.write(data)
 
             self.ACK()
 
