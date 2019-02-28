@@ -52,11 +52,11 @@ class Walkie(protocol.Protocol):
         if FIN in self.buffer:
             return FIN
 
-        if len(self.buffer) > 2 * len(FIN):
-            if ACK in self.buffer:
-                self.buffer = self.buffer.replace(ACK, b'')
-                return ACK
+        if ACK in self.buffer:
+            self.buffer = self.buffer.replace(ACK, b'')
+            return ACK
 
+        if len(self.buffer) > 2 * len(FIN):
             ret = self.buffer[:-len(FIN)]
             self.buffer = self.buffer[-len(FIN):]
 
