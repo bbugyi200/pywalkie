@@ -88,9 +88,10 @@ class Walkie(protocol.Protocol):
         return data in [ACK, SYN, FIN]
 
     def parse(self, data):
-        """Parse and buffer data received via the transport.
+        """Parses and buffers data received via the transport.
 
-        Identifies flags and ensures data integrity.
+        Makes sure flags get their own container and ensures
+        data integrity.
         """
         self.buffer += data
         if FIN in self.buffer:
