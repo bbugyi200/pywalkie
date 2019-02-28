@@ -13,17 +13,21 @@ import pywalkie as p  # noqa: F401
 
 
 class WalkieServer(p.Walkie):
+    """Walkie Server
+
+    Implements the protocol.Protocol interface.
+    """
     def __init__(self):
         super().__init__()
         self.child = self.paplay()
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        data = self.buffer_data(data)
-        p.dmsg('Actual Data: %r', data[20:])
+        clean_data = self.parse(data)
+        p.dmsg('Actual Data: %r', clean_data[20:])
 
         if self.recording:
-            if data == p.FIN:
+            if clean_data == p.FIN:
                 self.child.stdout.close()
                 self.child = self.paplay()
                 self.ACK()
@@ -31,20 +35,21 @@ class WalkieServer(p.Walkie):
 
             self.send_chunk()
         else:
-            if data == p.FIN:
+            if clean_data == p.FIN:
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
 
                 return
 
-            if data != p.ACK:
-                self.child.stdin.write(data)
+            if not self.is_flag(clean_data):
+                self.child.stdin.write(clean_data)
 
-            self.ACK()
+            self.SYN()
 
 
 class WalkieFactory(protocol.Factory):
+    """Factory Class that Generates WalkieServer Instances"""
     protocol = WalkieServer
 
 
