@@ -4,12 +4,13 @@ import argparse
 import subprocess as sp  # noqa: F401
 
 from twisted.internet import protocol, reactor
-from twisted.protocols.basic import LineReceiver  # noqa: F401
 
 import pywalkie as p  # noqa: F401
 
+
 class WalkieServer(p.Walkie('server')):
-    pass
+    def rawDataReceived(self, data):
+        super().rawDataReceived(data)
 
 
 class WalkieFactory(protocol.Factory):
@@ -29,7 +30,7 @@ if __name__ == '__main__':
 
     p.DEBUGGING = args.debug
 
-    print('---------- Walkie Server ----------')
+    p.dmsg('Starting Walkie Server...')
 
     reactor.listenTCP(port, WalkieFactory())
     reactor.run()

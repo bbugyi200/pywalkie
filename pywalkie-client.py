@@ -7,7 +7,6 @@ import sys
 
 import twisted
 from twisted.internet import protocol, reactor
-from twisted.protocols.basic import LineReceiver  # noqa: F401
 
 import pywalkie as p
 
@@ -18,17 +17,18 @@ def sigint_handler(signum, frame):
 
 
 class WalkieClient(p.Walkie('client')):
+    def __init__(self):
+        super().__init__()
+
     def connectionMade(self):
         p.imsg('Connection Made')
-        data = sp.check_output(['arecord', '-fdat', '-d', '1'])
+        child = sp.Popen(['arecord', '-fdat', '-d', '2'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
-        data_length = str(len(data)) + '\r\n'
-        self.transport.write(data_length.encode())
-        self.transport.write(data)
+        for line in iter(child.stdout.readline, b''):
+            self.transport.write(line)
 
     def rawDataReceived(self, data):
         super().rawDataReceived(data)
-        print('And stuff...')
 
 
 class WalkieFactory(protocol.ClientFactory):
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     DEBUGGING = args.debug
 
-    print('---------- Walkie Client ----------')
+    p.dmsg('Starting Walkie Client...')
 
     reactor.connectTCP(args.hostname, port, WalkieFactory())
     reactor.run()
