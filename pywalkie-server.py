@@ -54,7 +54,7 @@ class WalkieServer(p.Walkie):
             self.SYN()
 
     def make_sound(self, name):
-        """Interface for Event-triggered Sound Effects"""
+        """Interface for Event-Triggered Sound Effects"""
         project_dir = '/home/bryan/projects/pywalkie/sounds/'
         fp = project_dir + name + '.wav'
         sp.Popen(['paplay', fp])
