@@ -37,7 +37,7 @@ class WalkieClient(p.Walkie):
     Implements the protocol.Protocol interface.
     """
     def connectionMade(self):
-        self.child = self.arecord()
+        self.child = self.record()
         self.send_chunk()
 
     def dataReceived(self, data):
@@ -50,7 +50,7 @@ class WalkieClient(p.Walkie):
                 self.child.stdin.write(chunk)
                 self.child.stdin.close()
 
-                self.child = self.arecord()
+                self.child = self.record()
                 self.FIN()
                 return
 
@@ -58,7 +58,7 @@ class WalkieClient(p.Walkie):
         elif p.active_walkie == p.SERVER:
             if self.recording:
                 self.FIN()
-                self.child = self.paplay()
+                self.child = self.listen()
                 return
 
             if not self.is_flag(chunk):

@@ -20,7 +20,7 @@ class WalkieServer(p.Walkie):
     """
     def connectionMade(self):
         self.make_sound('kongas')
-        self.child = self.paplay()
+        self.child = self.listen()
 
     def dataReceived(self, data):
         super().dataReceived(data)
@@ -30,7 +30,7 @@ class WalkieServer(p.Walkie):
         if self.recording:
             if chunk == p.FIN:
                 self.child.stdout.close()
-                self.child = self.paplay()
+                self.child = self.listen()
                 self.ACK()
                 return
 
@@ -38,7 +38,7 @@ class WalkieServer(p.Walkie):
         else:
             if chunk == p.FIN:
                 self.child.stdin.close()
-                self.child = self.arecord()
+                self.child = self.record()
                 self.ACK()
                 return
 

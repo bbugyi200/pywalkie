@@ -74,7 +74,7 @@ class Walkie(protocol.Protocol):
 
         return chunk
 
-    def arecord(self):
+    def record(self):
         """Wrapper for the 'arecord' process call.
 
         Pywalkie uses arecord to record audio.
@@ -83,7 +83,7 @@ class Walkie(protocol.Protocol):
         self._buffer = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
-    def paplay(self):
+    def listen(self):
         """Wrapper for the 'paplay' process call.
 
         Pywalkie uses paplay to play audio.
