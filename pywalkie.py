@@ -7,7 +7,7 @@ from twisted.internet import protocol
 ACK = b'ACK'
 CHUNK_SIZE = 1024
 CLIENT = 'CLIENT'
-DEBUGGING = ...  # Set by the client / server startup code.
+DEBUGGING = False
 FIN = b'FIN'
 SERVER = 'SERVER'
 SYN = b'SYN'
