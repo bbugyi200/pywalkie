@@ -43,25 +43,7 @@ class Walkie(protocol.Protocol):
             dmsg('Sent: %r', data)
         self.transport.write(data)
 
-    def arecord(self):
-        """Wrapper for the 'arecord' process call.
-
-        Pywalkie uses arecord to record audio.
-        """
-        self.recording = True
-        self._buffer = b''
-        return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
-
-    def paplay(self):
-        """Wrapper for the 'paplay' process call.
-
-        Pywalkie uses paplay to play audio.
-        """
-        self.recording = False
-        self._buffer = b''
-        return sp.Popen(['paplay'], stdin=sp.PIPE)
-
-    def buffer(self, data):
+    def get_chunk(self, data):
         """Buffers data received via the transport.
 
         Makes sure flags get their own container and protects data integrity.
@@ -83,14 +65,32 @@ class Walkie(protocol.Protocol):
             else:
                 index = -flag_size
 
-            ret = self._buffer[:index]
+            chunk = self._buffer[:index]
             self._buffer = self._buffer[index:]
 
-            assert len(ret) <= CHUNK_SIZE
+            assert len(chunk) <= CHUNK_SIZE
         else:
-            ret = b''
+            chunk = b''
 
-        return ret
+        return chunk
+
+    def arecord(self):
+        """Wrapper for the 'arecord' process call.
+
+        Pywalkie uses arecord to record audio.
+        """
+        self.recording = True
+        self._buffer = b''
+        return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
+
+    def paplay(self):
+        """Wrapper for the 'paplay' process call.
+
+        Pywalkie uses paplay to play audio.
+        """
+        self.recording = False
+        self._buffer = b''
+        return sp.Popen(['paplay'], stdin=sp.PIPE)
 
     def FIN(self):
         """Send FIN message.
