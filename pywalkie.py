@@ -60,7 +60,7 @@ class Walkie(protocol.Protocol):
         self._buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
-    def buffer(self, data):
+    def transform(self, data):
         """Buffers data received via the transport.
 
         Makes sure flags get their own container and ensures
@@ -68,7 +68,7 @@ class Walkie(protocol.Protocol):
 
         Returns:
             bytes: The next set of bytes that have been cleared to be written
-                   to the transport.
+                   to the STDIN of the 'paplay' process.
         """
         self._buffer += data
         if FIN in self._buffer:
