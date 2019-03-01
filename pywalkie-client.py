@@ -47,11 +47,10 @@ class WalkieClient(p.Walkie):
 
         if p.active_walkie == p.CLIENT:
             if not self.is_recording:
+                self.FIN()
                 self.child.stdin.write(chunk)
                 self.child.stdin.close()
-
                 self.child = self.record()
-                self.FIN()
                 return
 
             self.send_chunk()
