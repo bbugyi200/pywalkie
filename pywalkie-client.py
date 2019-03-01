@@ -85,9 +85,9 @@ class WalkieFactory(protocol.ClientFactory):
 
 def monitor_input():
     """
-    This function is given its own thread to manage the command-line inerface.
-    Using this function, it becomes possible for the user to toggle the walkie
-    talkie functionality by pressing the Enter key.
+    Given its own thread to manage the command-line inerface. This makes it
+    possible for the user to toggle the walkie talkie functionality by pressing
+    the Enter key.
     """
     def print_status(status, color):
         p.active_walkie = status
