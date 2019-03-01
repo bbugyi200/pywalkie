@@ -22,7 +22,7 @@ class Walkie(protocol.Protocol):
     """
     def __init__(self):
         self._buffer = b''
-        self.recording = ...
+        self.recording = False  # Is 'arecord' currentlyrunning on this machine?
 
     def dataReceived(self, data):
         if len(data) > 10:
