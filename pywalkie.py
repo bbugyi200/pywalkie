@@ -23,7 +23,7 @@ class Walkie(protocol.Protocol):
     """
     def __init__(self):
         self._buffer = b''
-        self.recording = False  # Is 'arecord' currentlyrunning on this machine?
+        self.is_recording = False  # Is 'arecord' currentlyrunning on this machine?
 
     def dataReceived(self, data):
         if len(data) > 10:
@@ -79,7 +79,7 @@ class Walkie(protocol.Protocol):
 
         Pywalkie uses arecord to record audio.
         """
-        self.recording = True
+        self.is_recording = True
         self._buffer = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
@@ -88,7 +88,7 @@ class Walkie(protocol.Protocol):
 
         Pywalkie uses paplay to play audio.
         """
-        self.recording = False
+        self.is_recording = False
         self._buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 

@@ -27,7 +27,7 @@ class WalkieServer(p.Walkie):
         chunk = self.get_chunk(data)
         p.dmsg('Actual Data: %r', chunk[20:])
 
-        if self.recording:
+        if self.is_recording:
             if chunk == p.FIN:
                 self.child.stdout.close()
                 self.child = self.listen()

@@ -46,7 +46,7 @@ class WalkieClient(p.Walkie):
         p.dmsg('Actual Data: %r', chunk[20:])
 
         if p.active_walkie == p.CLIENT:
-            if not self.recording:
+            if not self.is_recording:
                 self.child.stdin.write(chunk)
                 self.child.stdin.close()
 
@@ -56,7 +56,7 @@ class WalkieClient(p.Walkie):
 
             self.send_chunk()
         elif p.active_walkie == p.SERVER:
-            if self.recording:
+            if self.is_recording:
                 self.FIN()
                 self.child.stdout.close()
                 self.child = self.listen()
