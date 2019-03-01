@@ -24,7 +24,7 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        data = self.transform(data)
+        data = self.buffer(data)
         p.dmsg('Actual Data: %r', data[20:])
 
         if self.recording:

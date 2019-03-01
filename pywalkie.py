@@ -13,6 +13,7 @@ SERVER = 'SERVER'
 SYN = b'SYN'
 
 active_walkie = CLIENT
+network_flags = [FIN, ACK, SYN]
 
 
 class Walkie(protocol.Protocol):
@@ -60,7 +61,7 @@ class Walkie(protocol.Protocol):
         self._buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
-    def transform(self, data):
+    def buffer(self, data):
         """Buffers data received via the transport.
 
         Makes sure flags get their own container and ensures
@@ -71,18 +72,17 @@ class Walkie(protocol.Protocol):
                    to the STDIN of the 'paplay' process.
         """
         self._buffer += data
-        if FIN in self._buffer:
-            return FIN
+        for flag in network_flags:
+            if flag in self._buffer:
+                self._buffer = self._buffer.replace(flag, b'', 1)
+                return flag
 
-        if ACK in self._buffer:
-            self._buffer = self._buffer.replace(ACK, b'')
-            return ACK
-
-        if len(self._buffer) > 2 * len(FIN):
-            if CHUNK_SIZE < (len(self._buffer) - len(FIN)):
+        flag_size = max([len(f) for f in network_flags])
+        if len(self._buffer) > 2 * flag_size:
+            if CHUNK_SIZE < (len(self._buffer) - flag_size):
                 index = CHUNK_SIZE
             else:
-                index = -len(FIN)
+                index = -flag_size
 
             ret = self._buffer[:index]
             self._buffer = self._buffer[index:]
@@ -118,7 +118,7 @@ class Walkie(protocol.Protocol):
         """
         Predicate that returns True if the data packet provided contains only a ACK, SYN, or FIN flag.
         """
-        return data in [ACK, SYN, FIN]
+        return data in network_flags
 
 
 #######################
