@@ -42,12 +42,12 @@ class WalkieClient(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        data = self.buffer(data)
-        p.dmsg('Actual Data: %r', data[20:])
+        packet = self.buffer(data)
+        p.dmsg('Actual Data: %r', packet[20:])
 
         if p.active_walkie == p.CLIENT:
             if not self.recording:
-                self.child.stdin.write(data)
+                self.child.stdin.write(packet)
                 self.child.stdin.close()
 
                 self.child = self.arecord()
@@ -61,8 +61,8 @@ class WalkieClient(p.Walkie):
                 self.child = self.paplay()
                 return
 
-            if data != p.ACK:
-                self.child.stdin.write(data)
+            if not self.is_flag(packet):
+                self.child.stdin.write(packet)
 
             self.SYN()
 

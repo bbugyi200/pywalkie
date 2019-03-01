@@ -24,11 +24,11 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        clean_data = self.buffer(data)
-        p.dmsg('Actual Data: %r', clean_data[20:])
+        packet = self.buffer(data)
+        p.dmsg('Actual Data: %r', packet[20:])
 
         if self.recording:
-            if clean_data == p.FIN:
+            if packet == p.FIN:
                 self.make_sound('kling')
                 self.child.stdout.close()
                 self.child = self.paplay()
@@ -37,15 +37,15 @@ class WalkieServer(p.Walkie):
 
             self.send_chunk()
         else:
-            if clean_data == p.FIN:
+            if packet == p.FIN:
                 self.make_sound('cow')
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
                 return
 
-            if not self.is_flag(clean_data):
-                self.child.stdin.write(clean_data)
+            if not self.is_flag(packet):
+                self.child.stdin.write(packet)
 
             self.SYN()
 
