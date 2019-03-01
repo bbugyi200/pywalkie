@@ -29,7 +29,6 @@ class WalkieServer(p.Walkie):
 
         if self.recording:
             if chunk == p.FIN:
-                self.make_sound('kling')
                 self.child.stdout.close()
                 self.child = self.paplay()
                 self.ACK()
@@ -38,7 +37,6 @@ class WalkieServer(p.Walkie):
             self.send_chunk()
         else:
             if chunk == p.FIN:
-                self.make_sound('cow')
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
