@@ -60,33 +60,6 @@ class Walkie(protocol.Protocol):
         self._buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
-    def ACK(self):
-        """Send ACK message.
-
-        Used to acknowledge the receipt of a FIN message.
-        """
-        self.transport.write(ACK)
-
-    def SYN(self):
-        """Send SYN message.
-
-        Used to synchronize the realtime requirements of the application. Without sending SYN messages after each block of audio is written, the application waits for ALL data to be delivered before playing any audio for the user waiting on the other end.
-        """
-        self.transport.write(SYN)
-
-    def FIN(self):
-        """Send FIN message.
-
-        Used to indicate that the current communication stream will soon be closing.
-        """
-        self.transport.write(FIN)
-
-    def is_flag(self, data):
-        """
-        Predicate that returns True if the data packet provided contains only a ACK, SYN, or FIN flag.
-        """
-        return data in [ACK, SYN, FIN]
-
     def buffer(self, data):
         """Buffers data received via the transport.
 
@@ -119,6 +92,33 @@ class Walkie(protocol.Protocol):
             ret = b''
 
         return ret
+
+    def ACK(self):
+        """Send ACK message.
+
+        Used to acknowledge the receipt of a FIN message.
+        """
+        self.transport.write(ACK)
+
+    def SYN(self):
+        """Send SYN message.
+
+        Used to synchronize the realtime requirements of the application. Without sending SYN messages after each block of audio is written, the application waits for ALL data to be delivered before playing any audio for the user waiting on the other end.
+        """
+        self.transport.write(SYN)
+
+    def FIN(self):
+        """Send FIN message.
+
+        Used to indicate that the current communication stream will soon be closing.
+        """
+        self.transport.write(FIN)
+
+    def is_flag(self, data):
+        """
+        Predicate that returns True if the data packet provided contains only a ACK, SYN, or FIN flag.
+        """
+        return data in [ACK, SYN, FIN]
 
 
 #######################
