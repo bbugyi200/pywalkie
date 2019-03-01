@@ -92,6 +92,13 @@ class Walkie(protocol.Protocol):
 
         return ret
 
+    def FIN(self):
+        """Send FIN message.
+
+        Used to indicate that the current communication stream will soon be closing.
+        """
+        self.transport.write(FIN)
+
     def ACK(self):
         """Send ACK message.
 
@@ -105,13 +112,6 @@ class Walkie(protocol.Protocol):
         Used to synchronize the realtime requirements of the application. Without sending SYN messages after each block of audio is written, the application waits for ALL data to be delivered before playing any audio for the user waiting on the other end.
         """
         self.transport.write(SYN)
-
-    def FIN(self):
-        """Send FIN message.
-
-        Used to indicate that the current communication stream will soon be closing.
-        """
-        self.transport.write(FIN)
 
     def is_flag(self, data):
         """
