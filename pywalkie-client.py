@@ -58,6 +58,7 @@ class WalkieClient(p.Walkie):
         elif p.active_walkie == p.SERVER:
             if self.recording:
                 self.FIN()
+                self.child.stdout.close()
                 self.child = self.listen()
                 return
 
