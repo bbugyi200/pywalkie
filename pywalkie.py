@@ -64,8 +64,7 @@ class Walkie(protocol.Protocol):
     def buffer(self, data):
         """Buffers data received via the transport.
 
-        Makes sure flags get their own container and ensures
-        data integrity.
+        Makes sure flags get their own container and protects data integrity.
 
         Returns:
             bytes: The next set of bytes that have been cleared to be written
