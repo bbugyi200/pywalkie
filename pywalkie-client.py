@@ -42,7 +42,7 @@ class WalkieClient(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        data = self.parse(data)
+        data = self.buffer(data)
         p.dmsg('Actual Data: %r', data[20:])
 
         if p.active_walkie == p.CLIENT:

@@ -21,7 +21,7 @@ class Walkie(protocol.Protocol):
     WalkieClient and WalkieServer both inherit from this class.
     """
     def __init__(self):
-        self.buffer = b''
+        self._buffer = b''
         self.recording = ...
 
     def dataReceived(self, data):
@@ -48,7 +48,7 @@ class Walkie(protocol.Protocol):
         Pywalkie uses arecord to record audio.
         """
         self.recording = True
-        self.buffer = b''
+        self._buffer = b''
         return sp.Popen(['arecord', '-fdat'], stdout=sp.PIPE, stderr=sp.DEVNULL)
 
     def paplay(self):
@@ -57,7 +57,7 @@ class Walkie(protocol.Protocol):
         Pywalkie uses paplay to play audio.
         """
         self.recording = False
-        self.buffer = b''
+        self._buffer = b''
         return sp.Popen(['paplay'], stdin=sp.PIPE)
 
     def ACK(self):
@@ -87,27 +87,34 @@ class Walkie(protocol.Protocol):
         """
         return data in [ACK, SYN, FIN]
 
-    def parse(self, data):
-        """Parses and buffers data received via the transport.
+    def buffer(self, data):
+        """Buffers data received via the transport.
 
         Makes sure flags get their own container and ensures
         data integrity.
+
+        Returns:
+            bytes: The next set of bytes that have been cleared to be written
+                   to the transport.
         """
-        self.buffer += data
-        if FIN in self.buffer:
+        self._buffer += data
+        if FIN in self._buffer:
             return FIN
 
-        if ACK in self.buffer:
-            self.buffer = self.buffer.replace(ACK, b'')
+        if ACK in self._buffer:
+            self._buffer = self._buffer.replace(ACK, b'')
             return ACK
 
-        if len(self.buffer) > 2 * len(FIN):
-            ret = self.buffer[:-len(FIN)]
-            self.buffer = self.buffer[-len(FIN):]
+        if len(self._buffer) > 2 * len(FIN):
+            if CHUNK_SIZE < (len(self._buffer) - len(FIN)):
+                index = CHUNK_SIZE
+            else:
+                index = -len(FIN)
 
-            if len(ret) > CHUNK_SIZE:
-                self.buffer = ret[CHUNK_SIZE:] + self.buffer
-                ret = ret[:CHUNK_SIZE]
+            ret = self._buffer[:index]
+            self._buffer = self._buffer[index:]
+
+            assert len(ret) <= CHUNK_SIZE
         else:
             ret = b''
 

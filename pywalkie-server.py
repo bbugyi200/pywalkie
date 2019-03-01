@@ -27,7 +27,7 @@ class WalkieServer(p.Walkie):
 
     def dataReceived(self, data):
         super().dataReceived(data)
-        clean_data = self.parse(data)
+        clean_data = self.buffer(data)
         p.dmsg('Actual Data: %r', clean_data[20:])
 
         if self.recording:
@@ -57,7 +57,8 @@ class WalkieServer(p.Walkie):
         """Interface for Event-Triggered Sound Effects"""
         project_dir = '/home/bryan/projects/pywalkie/sounds/'
         fp = project_dir + name + '.wav'
-        sp.Popen(['paplay', fp])
+        if os.path.exists(fp):
+            sp.Popen(['paplay', fp])
 
 
 class WalkieFactory(protocol.Factory):
