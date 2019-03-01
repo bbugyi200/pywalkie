@@ -18,12 +18,9 @@ class WalkieServer(p.Walkie):
 
     Implements the protocol.Protocol interface.
     """
-    def __init__(self):
-        super().__init__()
-        self.child = self.paplay()
-
     def connectionMade(self):
         self.make_sound('kongas')
+        self.child = self.paplay()
 
     def dataReceived(self, data):
         super().dataReceived(data)
@@ -45,7 +42,6 @@ class WalkieServer(p.Walkie):
                 self.child.stdin.close()
                 self.child = self.arecord()
                 self.ACK()
-
                 return
 
             if not self.is_flag(clean_data):

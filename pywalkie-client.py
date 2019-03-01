@@ -59,7 +59,6 @@ class WalkieClient(p.Walkie):
             if self.recording:
                 self.FIN()
                 self.child = self.paplay()
-
                 return
 
             if data != p.ACK:
