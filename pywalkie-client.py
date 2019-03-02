@@ -116,7 +116,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('port', help="The server's port.")
     parser.add_argument('hostname', help="The server's hostname.")
-    parser.add_argument('-d', '--debug', action='store_true', help='Enable debugging output.')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Enable debugging output.')
     args = parser.parse_args()
 
     try:

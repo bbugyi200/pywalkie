@@ -23,7 +23,7 @@ class Walkie(protocol.Protocol):
     """
     def __init__(self):
         self._buffer = b''
-        self.is_recording = False  # Is 'arecord' currentlyrunning on this machine?
+        self.is_recording = False
 
     def dataReceived(self, data):
         if len(data) > 10:
@@ -95,7 +95,8 @@ class Walkie(protocol.Protocol):
     def FIN(self):
         """Send FIN message.
 
-        Used to indicate that the current communication stream will soon be closing.
+        Used to indicate that the current communication stream will soon be
+        closing.
         """
         self.transport.write(FIN)
 
@@ -109,13 +110,17 @@ class Walkie(protocol.Protocol):
     def SYN(self):
         """Send SYN message.
 
-        Used to synchronize the realtime requirements of the application. Without sending SYN messages after each block of audio is written, the application waits for ALL data to be delivered before playing any audio for the user waiting on the other end.
+        Used to synchronize the realtime requirements of the application.
+        Without sending SYN messages after each block of audio is written,
+        the application waits for ALL data to be delivered before playing
+        any audio for the user waiting on the other end.
         """
         self.transport.write(SYN)
 
     def is_flag(self, data):
         """
-        Predicate that returns True if the data packet provided contains only a ACK, SYN, or FIN flag.
+        Predicate that returns True if the data packet provided contains only
+        a ACK, SYN, or FIN flag.
         """
         return data in network_flags
 

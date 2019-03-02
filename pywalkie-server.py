@@ -65,7 +65,8 @@ class WalkieFactory(protocol.Factory):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('port', help="The port to listen on.")
-    parser.add_argument('-d', '--debug', action='store_true', help='Enable debugging output.')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='Enable debugging output.')
     args = parser.parse_args()
 
     try:
