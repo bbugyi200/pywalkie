@@ -43,7 +43,6 @@ class WalkieClient(p.Walkie):
     def dataReceived(self, data):
         super().dataReceived(data)
         chunk = self.get_chunk(data)
-        p.dmsg('Actual Data: %r', chunk[20:])
 
         if p.active_walkie == p.CLIENT:
             if not self.is_recording:

@@ -20,7 +20,7 @@ class WalkieServer(p.Walkie):
     Implements the protocol.Protocol interface.
     """
     def connectionMade(self):
-        self.beep(seconds=2, frequency=500)
+        self.beep(seconds=1.5, frequency=500)
         self.child = self.listen()
 
     def dataReceived(self, data):
@@ -31,7 +31,6 @@ class WalkieServer(p.Walkie):
         if self.is_recording:
             if chunk == p.FIN:
                 self.beep(frequency=500)
-                self.child.kill()
                 self.child = self.listen()
                 self.ACK()
                 return
@@ -40,7 +39,6 @@ class WalkieServer(p.Walkie):
         else:
             if chunk == p.FIN:
                 self.beep(frequency=1000)
-                self.child.kill()
                 self.child = self.record()
                 self.ACK()
                 return
