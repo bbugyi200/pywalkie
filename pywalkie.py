@@ -140,3 +140,10 @@ def dmsg(*args):
     """Send a Debugging Message"""
     if DEBUGGING:
         imsg(*args, prefix='[' + active_walkie + ']')
+
+
+def cmd_exists(cmd):
+    """Checks whether or not @cmd exists on this system."""
+    from shutil import which
+
+    return which(cmd) is not None

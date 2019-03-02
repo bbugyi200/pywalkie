@@ -6,6 +6,7 @@ import argparse
 import os  # noqa: F401
 import subprocess as sp  # noqa: F401
 import sys
+import threading
 
 from twisted.internet import protocol, reactor
 from twisted.python import log
@@ -19,7 +20,7 @@ class WalkieServer(p.Walkie):
     Implements the protocol.Protocol interface.
     """
     def connectionMade(self):
-        self.make_sound('kongas')
+        self.beep(seconds=2, frequency=500)
         self.child = self.listen()
 
     def dataReceived(self, data):
@@ -29,7 +30,7 @@ class WalkieServer(p.Walkie):
 
         if self.is_recording:
             if chunk == p.FIN:
-                self.make_sound("apert")
+                self.beep(frequency=500)
                 self.child.kill()
                 self.child = self.listen()
                 self.ACK()
@@ -38,7 +39,7 @@ class WalkieServer(p.Walkie):
             self.send_chunk()
         else:
             if chunk == p.FIN:
-                self.make_sound("apert")
+                self.beep(frequency=1000)
                 self.child.kill()
                 self.child = self.record()
                 self.ACK()
@@ -49,12 +50,24 @@ class WalkieServer(p.Walkie):
 
             self.SYN()
 
-    def make_sound(self, name):
-        """Interface for Event-Triggered Sound Effects"""
-        project_dir = '/home/bryan/projects/pywalkie/sounds/'
-        fp = project_dir + name + '.wav'
-        if os.path.exists(fp):
-            sp.Popen(['paplay', fp])
+    def beep(self, *, seconds=0.5, frequency=1000):
+        """Make a beep noise.
+
+        Args:
+            seconds: The number of seconds that the beep will last.
+            frequency: The frequency of the beep.
+        """
+        from time import sleep
+
+        def _beep():
+            child = sp.Popen(['speaker-test', '-t', 'sine', '-f', str(frequency)],
+                             stdout=sp.DEVNULL)
+            sleep(seconds)
+            child.kill()
+
+        if p.cmd_exists("speaker-test"):
+            t = threading.Thread(target=_beep, daemon=True)
+            t.start()
 
 
 class WalkieFactory(protocol.Factory):

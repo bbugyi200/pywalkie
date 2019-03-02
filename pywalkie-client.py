@@ -104,7 +104,6 @@ def manage_cli():
             ERASE_LINE = ('\b' * 60) + (' ' * 60) + ('\b' * 60)
             print(CURSOR_UP_ONE + ERASE_LINE, end='')
 
-
     while True:
         toggle_walkie(p.CLIENT, Color.GREEN)
         toggle_walkie(p.SERVER, Color.RED)
