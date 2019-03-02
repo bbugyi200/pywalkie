@@ -20,7 +20,9 @@ class WalkieServer(p.Walkie):
     Implements the protocol.Protocol interface.
     """
     def connectionMade(self):
-        self.beep(duration=1.5, frequency=500)
+        if p.cmd_exists('espeak'):
+            sp.call(['espeak', '-g', '2', '-a', '200', '-p', '10', 'Pywalkie connection established.'])
+
         self.child = self.listen()
 
     def dataReceived(self, data):
@@ -30,7 +32,6 @@ class WalkieServer(p.Walkie):
 
         if self.is_recording:
             if chunk == p.FIN:
-                self.beep(frequency=500)
                 self.child.kill()
                 self.child = self.listen()
                 self.ACK()
@@ -39,7 +40,6 @@ class WalkieServer(p.Walkie):
             self.send_chunk()
         else:
             if chunk == p.FIN:
-                self.beep(frequency=1000)
                 self.child.kill()
                 self.child = self.record()
                 self.ACK()
@@ -49,6 +49,14 @@ class WalkieServer(p.Walkie):
                 self.child.stdin.write(chunk)
 
             self.SYN()
+
+    def record(self):
+        self.beep(frequency=1000)
+        return super().record()
+
+    def listen(self):
+        self.beep(frequency=500)
+        return super().listen()
 
     def beep(self, *, duration=0.5, frequency=1000):
         """Make a beep noise.

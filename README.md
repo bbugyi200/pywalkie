@@ -23,4 +23,5 @@ Finally, the audio is played back on the second machine using the [paplay](https
 [Twisted]: https://twistedmatrix.com/trac/
 
 ### Optional Dependencies
-Pywalkie uses [speaker-test](https://linux.die.net/man/1/speaker-test) to make a noise every time the walkie-talkie mode is toggled.
+* [speaker-test](https://linux.die.net/man/1/speaker-test) is used to make a noise on the server every time the walkie-talkie mode is toggled.
+* [espeak](http://espeak.sourceforge.net/) is used to announce to the server when a client has connected to Pywalkie.
