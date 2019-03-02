@@ -21,3 +21,6 @@ Once recorded, the audio is streamed to the second machine using [Twisted], an e
 Finally, the audio is played back on the second machine using the [paplay](https://linux.die.net/man/1/paplay) utility (also Linux-based).
 
 [Twisted]: https://twistedmatrix.com/trac/
+
+### Optional Dependencies
+Pywalkie uses [speaker-test](https://linux.die.net/man/1/speaker-test) to make a noise every time the walkie-talkie mode is toggled.
