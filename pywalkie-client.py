@@ -49,7 +49,7 @@ class WalkieClient(p.Walkie):
             if not self.is_recording:
                 self.FIN()
                 self.child.stdin.write(chunk)
-                self.child.stdin.close()
+                self.child.kill()
                 self.child = self.record()
                 return
 
@@ -57,7 +57,7 @@ class WalkieClient(p.Walkie):
         elif p.active_walkie == p.SERVER:
             if self.is_recording:
                 self.FIN()
-                self.child.stdout.close()
+                self.child.kill()
                 self.child = self.listen()
                 return
 
