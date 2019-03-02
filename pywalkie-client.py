@@ -83,16 +83,20 @@ class WalkieFactory(protocol.ClientFactory):
             p.imsg("Connection Terminated.")
 
 
-def monitor_input():
+def manage_cli():
     """
     Given its own thread to manage the command-line inerface. This makes it
     possible for the user to toggle the walkie talkie functionality by pressing
     the Enter key.
     """
-    def print_status(status, color):
-        p.active_walkie = status
+    def toggle_walkie(walkie, color):
+        """
+        Toggle the active walkie to @walkie, then print the client's current
+        state (TALK or LISTEN) to the console.
+        """
+        p.active_walkie = walkie
 
-        state = 'TALK' if status == p.CLIENT else 'LISTEN'
+        state = 'TALK' if walkie == p.CLIENT else 'LISTEN'
         input('Press Enter to Toggle Walkie Mode:' + color(' [' + state + '] '))
         sys.stdout.flush()
         if not p.DEBUGGING:
@@ -102,8 +106,8 @@ def monitor_input():
 
 
     while True:
-        print_status(p.CLIENT, Color.GREEN)
-        print_status(p.SERVER, Color.RED)
+        toggle_walkie(p.CLIENT, Color.GREEN)
+        toggle_walkie(p.SERVER, Color.RED)
 
 
 if __name__ == '__main__':
@@ -131,7 +135,7 @@ if __name__ == '__main__':
     if p.DEBUGGING:
         log.startLogging(sys.stdout)
 
-    t = threading.Thread(target=monitor_input, daemon=True)
+    t = threading.Thread(target=manage_cli, daemon=True)
     t.start()
 
     reactor.connectTCP(args.hostname, port, WalkieFactory())
