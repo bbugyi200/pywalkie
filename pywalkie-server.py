@@ -31,6 +31,7 @@ class WalkieServer(p.Walkie):
         if self.is_recording:
             if chunk == p.FIN:
                 self.beep(frequency=500)
+                self.child.kill()
                 self.child = self.listen()
                 self.ACK()
                 return
@@ -39,6 +40,7 @@ class WalkieServer(p.Walkie):
         else:
             if chunk == p.FIN:
                 self.beep(frequency=1000)
+                self.child.kill()
                 self.child = self.record()
                 self.ACK()
                 return
