@@ -20,7 +20,7 @@ class WalkieServer(p.Walkie):
     Implements the protocol.Protocol interface.
     """
     def connectionMade(self):
-        self.beep(seconds=1.5, frequency=500)
+        self.beep(duration=1.5, frequency=500)
         self.child = self.listen()
 
     def dataReceived(self, data):
@@ -48,19 +48,22 @@ class WalkieServer(p.Walkie):
 
             self.SYN()
 
-    def beep(self, *, seconds=0.5, frequency=1000):
+    def beep(self, *, duration=0.5, frequency=1000):
         """Make a beep noise.
 
         Args:
-            seconds: The number of seconds that the beep will last.
-            frequency: The frequency of the beep.
+            duration (float): The number of seconds that the beep will last.
+            frequency (int): The frequency of the beep.
         """
         from time import sleep
+
+        if frequency < 30 or frequency > 8000:
+            raise ValueError("The frequency given is outside of valid range (30-8000Hz).")
 
         def _beep():
             child = sp.Popen(['speaker-test', '-t', 'sine', '-f', str(frequency)],
                              stdout=sp.DEVNULL)
-            sleep(seconds)
+            sleep(duration)
             child.kill()
 
         if p.cmd_exists("speaker-test"):
