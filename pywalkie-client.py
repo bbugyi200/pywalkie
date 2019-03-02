@@ -92,9 +92,8 @@ def monitor_input():
     def print_status(status, color):
         p.active_walkie = status
 
-        instructions = 'Press Enter to Toggle Walkie Mode...'
-        state = 'RECORDING' if status == p.CLIENT else 'LISTENING'
-        input(instructions + color(' [' + state + '] '))
+        state = 'TALK' if status == p.CLIENT else 'LISTEN'
+        input('Press Enter to Toggle Walkie Mode:' + color(' [' + state + '] '))
         sys.stdout.flush()
         if not p.DEBUGGING:
             CURSOR_UP_ONE = '\x1b[1A'
