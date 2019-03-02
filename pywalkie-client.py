@@ -92,6 +92,8 @@ def manage_cli():
         """
         Toggle the active walkie to @walkie, then print the client's current
         state (TALK or LISTEN) to the console.
+
+        This function then blocks until the user hits the 'Enter' key.
         """
         p.active_walkie = walkie
 
